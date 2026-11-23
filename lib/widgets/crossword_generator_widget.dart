@@ -9,8 +9,8 @@ import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 import '../model.dart';
 import '../providers.dart';
 
-class CrosswordWidget extends ConsumerWidget {
-  const CrosswordWidget({super.key});
+class CrosswordGeneratorWidget extends ConsumerWidget {
+  const CrosswordGeneratorWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,7 +69,7 @@ class CrosswordWidget extends ConsumerWidget {
                         ? Theme.of(context).colorScheme.onPrimary
                         : Theme.of(context).colorScheme.primary,
                   ),
-                  child: Text(character.character),
+                  child: Text('•'), // https://www.compart.com/en/unicode/U+2022
                 ),
               ),
             );
