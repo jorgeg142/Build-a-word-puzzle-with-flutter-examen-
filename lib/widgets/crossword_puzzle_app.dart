@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../providers.dart';
 import 'crossword_generator_widget.dart';
+import 'crossword_info_widget.dart';
 import 'crossword_puzzle_widget.dart';
 import 'puzzle_completed_widget.dart';
 
@@ -34,7 +35,7 @@ class CrosswordPuzzleApp extends StatelessWidget {
                 puzzleProvider.select((puzzle) => puzzle.solved),
               );
 
-              return workQueueAsync.when(
+              final content = workQueueAsync.when(
                 data: (workQueue) {
                   if (puzzleSolved) {
                     return PuzzleCompletedWidget();
@@ -47,6 +48,13 @@ class CrosswordPuzzleApp extends StatelessWidget {
                 },
                 loading: () => Center(child: CircularProgressIndicator()),
                 error: (error, stackTrace) => Center(child: Text('$error')),
+              );
+
+              return Stack(
+                children: [
+                  Positioned.fill(child: content),
+                  if (ref.watch(showDisplayInfoProvider)) CrosswordInfoWidget(),
+                ],
               );
             },
           ),
@@ -78,6 +86,22 @@ class _CrosswordPuzzleAppMenu extends ConsumerWidget {
               ? Icon(Icons.radio_button_checked_outlined)
               : Icon(Icons.radio_button_unchecked_outlined),
           child: Text(entry.label),
+        ),
+      MenuItemButton(
+        leadingIcon: ref.watch(showDisplayInfoProvider)
+            ? Icon(Icons.check_box_outlined)
+            : Icon(Icons.check_box_outline_blank_outlined),
+        onPressed: () => ref.read(showDisplayInfoProvider.notifier).toggle(),
+        child: Text('Display Info'),
+      ),
+      for (final count in BackgroundWorkers.values)
+        MenuItemButton(
+          leadingIcon: count == ref.watch(workerCountProvider)
+              ? Icon(Icons.radio_button_checked_outlined)
+              : Icon(Icons.radio_button_unchecked_outlined),
+          onPressed: () =>
+              ref.read(workerCountProvider.notifier).setCount(count),
+          child: Text(count.label),
         ),
     ],
     builder: (context, controller, child) => IconButton(
