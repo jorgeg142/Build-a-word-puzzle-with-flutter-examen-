@@ -5,6 +5,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'widgets/crossword_generator_app.dart';
+
 void main() {
   runApp(
     ProviderScope(
@@ -15,11 +17,7 @@ void main() {
           colorSchemeSeed: Colors.blueGrey,
           brightness: Brightness.light,
         ),
-        home: Scaffold(
-          body: Center(
-            child: Text('Hello, World!', style: TextStyle(fontSize: 24)),
-          ),
-        ),
+        home: CrosswordGeneratorApp(),
       ),
     ),
   );
