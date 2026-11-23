@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:examenfinal/model.dart';
 
@@ -382,5 +383,118 @@ void main() {
     );
 
     expect(crossword.valid, false);
+  });
+
+  test('WorkQueue from a crossword', () {
+    Crossword crossword = Crossword.crossword(width: 50, height: 50);
+    WorkQueue queue = WorkQueue.from(
+      crossword: crossword,
+      candidateWords: ['words', 'and', 'moar', 'wordz'],
+      startLocation: Location.at(0, 0),
+    );
+    expect(queue.locationsToTry.length, 1);
+
+    crossword = crossword.addWord(
+      direction: Direction.across,
+      location: Location.at(0, 0),
+      word: 'word',
+    )!;
+    queue = WorkQueue.from(
+      crossword: crossword,
+      candidateWords: ['words', 'and', 'moar', 'wordz'],
+      startLocation: Location.at(0, 0),
+    );
+    expect(queue.locationsToTry.length, 4);
+    expect(
+      queue.locationsToTry.entries.every(
+        (element) => element.value == Direction.down,
+      ),
+      isTrue,
+    );
+    final entries = queue.locationsToTry.entries;
+    expect(entries.every((element) => element.key.y == 0), isTrue);
+    expect(
+      entries.map((element) => element.key.x).toBuiltSet(),
+      equals(BuiltSet([0, 1, 2, 3])),
+    );
+  });
+
+  test('WorkQueue from down word', () {
+    Crossword crossword = Crossword.crossword(width: 50, height: 50).addWord(
+      direction: Direction.down,
+      location: Location.at(0, 0),
+      word: 'word',
+    )!;
+
+    WorkQueue queue = WorkQueue.from(
+      crossword: crossword,
+      candidateWords: ['words', 'and', 'moar', 'wordz'],
+      startLocation: Location.at(0, 0),
+    );
+    expect(queue.locationsToTry.length, 4);
+    expect(
+      queue.locationsToTry.entries.every(
+        (element) => element.value == Direction.across,
+      ),
+      isTrue,
+    );
+    final entries = queue.locationsToTry.entries;
+    expect(entries.every((element) => element.key.x == 0), isTrue);
+    expect(
+      entries.map((element) => element.key.y).toBuiltSet(),
+      equals(BuiltSet([0, 1, 2, 3])),
+    );
+  });
+
+  test('WorkQueue from two words', () {
+    Crossword crossword = Crossword.crossword(width: 50, height: 50)
+        .addWord(
+          direction: Direction.across,
+          location: Location.at(0, 0),
+          word: 'word',
+        )!
+        .addWord(
+          direction: Direction.down,
+          location: Location.at(0, 0),
+          word: 'work',
+        )!;
+
+    WorkQueue queue = WorkQueue.from(
+      crossword: crossword,
+      candidateWords: ['word', 'work'],
+      startLocation: Location.at(0, 0),
+    );
+    expect(
+      queue.locationsToTry,
+      equals(
+        BuiltMap<Location, Direction>({
+          Location.at(2, 0): Direction.down,
+          Location.at(0, 2): Direction.across,
+          Location.at(3, 0): Direction.down,
+          Location.at(0, 3): Direction.across,
+        }),
+      ),
+    );
+  });
+
+  test('WorkQueue removes used words from candidate list', () {
+    Crossword crossword = Crossword.crossword(width: 50, height: 50)
+        .addWord(
+          direction: Direction.across,
+          location: Location.at(0, 0),
+          word: 'word',
+        )!
+        .addWord(
+          direction: Direction.down,
+          location: Location.at(0, 0),
+          word: 'work',
+        )!;
+
+    WorkQueue queue = WorkQueue.from(
+      crossword: crossword,
+      candidateWords: ['word', 'work'],
+      startLocation: Location.at(0, 0),
+    );
+    expect(queue.candidateWords.length, equals(0));
   });
 }
